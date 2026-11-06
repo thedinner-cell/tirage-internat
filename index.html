@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tirage Internat</title>
+<style>
+:root{--bg:#f6f7f8;--sf:#fff;--tx:#1b2328;--mu:#5d6a72;--bd:#dfe4e7;--ac:#0f7f70;--on:#fff;--dg:#b3261e;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12171a;--sf:#1b2226;--tx:#e7ecee;--mu:#8f9ca4;--bd:#2a343a;--ac:#3fb8a5;--on:#0b1a17;--dg:#f2766d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12171a;--sf:#1b2226;--tx:#e7ecee;--mu:#8f9ca4;--bd:#2a343a;--ac:#3fb8a5;--on:#0b1a17;--dg:#f2766d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 120px}
+h1{font-size:20px;font-weight:650;margin:0}h2{font-size:17px;margin:24px 0 8px}
+.mu{color:var(--mu);font-size:14px;margin:4px 0}
+nav{display:flex;gap:4px;margin:16px 0;border-bottom:1px solid var(--bd)}
+nav button{flex:1;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 2px;font-size:15px;color:var(--mu);min-height:44px}
+nav button[aria-selected="true"]{color:var(--tx);border-bottom-color:var(--ac);font-weight:600}
+button,select,input,textarea{font:inherit;color:var(--tx)}
+button{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}
+button.pri{background:var(--ac);border-color:var(--ac);color:var(--on);font-weight:600}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+input,select,textarea{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px;min-height:44px;box-sizing:border-box;max-width:100%}
+textarea{width:100%;display:block;margin:6px 0 8px;resize:vertical}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:12px}
+.card .t{font-size:21px;font-weight:600;line-height:1.3}
+.card .m{color:var(--mu);font-size:14px;margin-top:2px}
+.row{display:flex;gap:8px;margin-top:14px}.row button{flex:1}
+.ph .t{color:var(--mu)}
+.empty{color:var(--mu);padding:24px 0;text-align:center}
+.lb,.set label{display:block;font-size:14px;color:var(--mu);margin-top:12px}
+.set label select,.set label input[type=number]{display:block;width:100%;margin-top:4px;color:var(--tx);font-size:16px}
+.chk{display:flex!important;align-items:center;gap:10px;color:var(--tx)!important;font-size:16px!important;min-height:44px}
+.chk input{width:20px;height:20px;min-height:0;margin:0}
+.tools{display:flex;gap:8px;margin:12px 0}.tools input{flex:1;min-width:0}
+.r{border-bottom:1px solid var(--bd);padding:10px 0}.r.ar{opacity:.55}
+.rn{font-weight:500;margin-bottom:6px}.rn input{width:100%}
+.ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.ctl button{padding:6px 10px;min-height:40px;font-size:14px}
+.cn{width:64px;text-align:center;min-height:40px;padding:6px}.sp{flex:1}
+.h{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--bd);padding:8px 0}
+.h small{color:var(--mu);display:block}.h button{min-height:40px;font-size:14px}
+#bar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--bd);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+#bar button{display:block;width:100%;max-width:608px;margin:0 auto;font-size:17px;min-height:50px}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom,0px));max-width:608px;margin:0 auto;background:var(--tx);color:var(--bg);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#toast[hidden],#bar[hidden],#banner[hidden]{display:none}
+#toast button{min-height:36px;padding:4px 12px;background:transparent;color:var(--bg);border-color:var(--bg)}
+#banner{background:var(--sf);border:1px solid var(--dg);color:var(--dg);border-radius:8px;padding:10px;margin-top:12px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Tirage Internat</h1>
+<p class="mu" id="cov"></p>
+<div id="banner" hidden role="alert"></div>
+<nav>
+<button data-act="tab" data-v="tirage">Tirage</button>
+<button data-act="tab" data-v="matieres">Matières</button>
+<button data-act="tab" data-v="historique">Historique</button>
+<button data-act="tab" data-v="reglages">Réglages</button>
+</nav>
+<main id="app"></main>
+</div>
+<div id="bar"><button class="pri" id="spin" data-act="spin">Tirer au sort</button></div>
+<div id="toast" hidden role="status"></div>
+<script>
+(()=>{
+const KEY='tirage-internat-v1';
+const RAW=`#Anatomie
+Les voies de conduction nerveuse et sensitive
+Les voies de la motricité
+Le plexus splanchnique cœliaque
+Vascularisation de l’encéphale : le polygone de Willis
+Les hémisphères cérébraux
+Les voies de conduction visuelles
+Le nerf facial
+Le creux axillaire
+L’articulation scapulo-humérale
+Le canal carpien
+Le nerf radial
+La loge thénar
+Le nerf crural
+Le nerf sciatique
+L’articulation coxo-fémorale
+Le triangle de Scarpa
+L’articulation du genou
+Le sein
+Le cœur
+Le poumon
+Le diaphragme
+Le canal inguinal
+L’œsophage
+L’estomac
+La loge duodéno-pancréatique
+La segmentation hépatique
+Le pédicule hépatique
+La loge splénique
+L’aorte abdominale
+La loge rénale
+La vessie
+Le rectum
+Le canal déférent
+La loge prostatique
+L’utérus
+La loge thyroïdienne
+La région carotidienne
+Le cæcum
+La veine porte
+L’artère hypogastrique
+#Biologie
+Débit cardiaque
+Régulation de la pression sanguine artérielle
+Physiologie de la ventilation
+Transport des gaz du sang
+Système rénine angiotensine et aldostérone
+Hormones thyroïdiennes
+Hormones sexuelles
+Marqueurs tumoraux
+Rein : filtration glomérulaire et fonctions tubulaires
+Compartiments hydriques de l’organisme et leur régulation
+Fonction biliaire
+Sécrétion gastrique
+Absorption intestinale
+Motricité digestive
+Équilibre acido-basique
+Neurotransmission et neuromodulation
+Actions biologiques des radiations ionisantes et radioprotection
+Immunité humorale
+Immunité cellulaire
+Complexe majeur d’histocompatibilité
+Immunité anti-infectieuse
+Techniques cytogénétiques et leurs indications
+Chromosome : anomalies chromosomiques et leurs mécanismes
+Différenciation et communication cellulaires
+Apoptose
+Hématopoïèse
+Hémolyse
+Systèmes de groupes érythrocytaires
+Hémoglobines humaines
+Hémostase
+Métabolisme phosphocalcique
+Équilibre hydro-électrolytique
+Régulation de la glycémie
+Cétogenèse
+Ammoniogenèse et uréogenèse
+Lipoprotéines plasmatiques
+Bilirubine
+Médullosurrénale
+Axe hypothalamo-hypophysaire
+Physiologie de la corticosurrénale
+Enzymes sériques
+Acides nucléiques (ADN et ARN)
+Amniocentèse et choriocentèse dans le diagnostic prénatal
+Exploration biologique de l’inflammation
+#Pathologie médicale
+Risque cardio-vasculaire
+Rhumatisme articulaire aigu
+Valvulopathies mitrales
+Valvulopathies aortiques
+Endocardites infectieuses
+Insuffisance cardiaque
+Péricardites aiguës et chroniques
+Cœur pulmonaire chronique
+Hypertension artérielle de l’adulte et de la grossesse
+Thromboses veineuses des membres inférieurs
+Douleur abdominale chronique chez l’adulte et l’enfant
+Reflux gastro-œsophagien non compliqué
+Maladie ulcéreuse
+Hépatites virales
+Cirrhoses du foie
+Ictère cholestatique
+Diarrhée chronique chez l’adulte et l’enfant
+Parasitoses digestives chez l’adulte et l’enfant
+Colites inflammatoires chroniques non compliquées
+Tuberculose péritonéale
+Lymphomes digestifs
+Fièvre typhoïde
+Brucellose
+Choléra
+Leptospirose ictéro-hémorragique
+Fièvre boutonneuse méditerranéenne
+Lèpre
+Hyper-éosinophilie
+Bilharziose uro-génitale
+Infection à VIH
+Paludisme
+Toxoplasmose
+Fièvres prolongées inexpliquées
+Infections nosocomiales
+Infection urinaire
+Antibiotiques
+Syphilis primo-secondaire
+Ulcération génitale
+Prurits chez l’adulte et l’enfant
+Urticaire chez l’adulte et l’enfant
+Onychomycoses
+Ulcère de jambe
+Mélanomes malins
+Érythème noueux
+Anémies
+Anémies hémolytiques
+Anémies mégaloblastiques
+Syndromes myéloprolifératifs
+Syndromes lymphoprolifératifs
+Gammapathie monoclonale
+Leucémie lymphoïde chronique
+Myélome multiple
+Leucémies aiguës
+Lymphomes hodgkiniens et non hodgkiniens
+Purpura
+Pancytopénie
+Chimiothérapie anti-cancéreuse
+Radiothérapie
+Amyloïdose
+Maladie lupique
+Dermato-polymyosites
+Vascularites nécrosantes
+Maladie de Behçet
+Spondylodiscite
+Polyarthrite évoluant depuis plus de 3 mois
+Spondylarthropathie
+Polyarthrite rhumatoïde
+Ostéoporose
+Ostéomalacie
+Anti-inflammatoires non stéroïdiens
+Corticothérapie au long cours
+Goutte
+Hyperparathyroïdies
+Hyperthyroïdies
+Hypothyroïdies
+Goitre et nodule de la thyroïde
+Hypercorticismes
+Insuffisances surrénales lentes
+Dysfonctionnements érectiles
+Diabète sucré chez l’enfant, l’adulte et pendant la grossesse
+Hyperlipidémies
+Infections broncho-pulmonaires non tuberculeuses
+Grippe
+Tuberculose
+Asthme
+Pleurésie séro-fibrineuse
+Sarcoïdose médiastino-pulmonaire
+Syndrome médiastinal
+Impact de l’environnement sur l’appareil respiratoire
+Œdèmes des membres inférieurs
+Protéinuries
+Maladie rénale chronique
+Les diurétiques
+Neuropathie périphérique
+Épilepsies
+Tremblement des extrémités
+Syndromes parkinsoniens
+Syndrome myasthénique
+Sclérose en plaques
+Vertige
+Anorexie mentale
+Syndrome dépressif
+Syndrome confusionnel
+Ménopause
+Infertilité du couple
+Contraception
+Grossesse : diagnostic et surveillance
+Accouchement normal en présentation du sommet
+Post-partum
+Menace d’accouchement prématuré
+Immunisation sanguine fœto-maternelle
+Ictère du nouveau-né
+Diarrhées aiguës de l’enfant
+Carences nutritionnelles de l’enfant
+Angines et pharyngites de l’enfant et de l’adulte
+Otites aiguës
+Éruptions fébriles chez l’enfant
+Vaccination
+Calendrier vaccinal obligatoire chez l’enfant au Maroc
+Cardiopathies cyanogènes ou non chez l’enfant
+Psychoses de l’enfant
+#Pathologie chirurgicale
+Hernies : inguinale, crurale et ombilicale
+Complications des hernies hiatales
+Sténose peptique de l’œsophage
+Adénocarcinome du cardia et du bas œsophage
+Cancer de l’œsophage
+Cancer de l’estomac
+Complications de l’ulcère gastro-duodénal
+Cancer du côlon
+Cancer du rectum
+Kyste hydatique du foie
+Cholécystites aiguës
+Cancer de la tête du pancréas
+Traitement chirurgical des MICI (RCH et Crohn)
+Mégacôlon congénital
+Sténose hypertrophique du pylore
+Diagnostic d’une tumeur abdominale de l’enfant
+Traitement chirurgical des goitres
+Cancer de la thyroïde
+Tumeurs de la surrénale
+Tumeurs endocrines du pancréas
+Cancer du sein
+Complications des avortements
+Hémorragies au cours de la grossesse et du post-partum
+Maladie trophoblastique
+Cancers du col utérin
+Cancers de l’endomètre
+Fibromyomes utérins
+Tumeurs de l’ovaire
+Pelvipéritonites d’origine gynécologique
+Adénome prostatique
+Cancer de la prostate
+Cancers du testicule
+Cancer du rein de l’adulte
+Tumeurs de vessie
+Lithiase urinaire
+Incontinence urinaire chez la femme
+Fistules vésico-vaginales
+Tuberculose uro-génitale
+Rétrécissements de l’urètre
+Traumatismes vertébro-médullaires cervicaux
+Traumatismes vertébro-médullaires dorso-lombaires
+Compressions médullaires lentes
+Tumeurs de la fosse cérébrale postérieure
+Fractures de l’anneau pelvien
+Fractures du col du fémur
+Fractures des plateaux tibiaux
+Lésions méniscales du genou
+Fractures bimalléolaires
+Luxations récentes de l’épaule
+Ostéomyélites aiguës de l’enfant
+Tumeurs malignes des os
+Luxation congénitale de la hanche avant l’âge de la marche
+Épiphysiolyse fémorale supérieure
+Ostéochondrite primitive de la hanche
+Artériopathies oblitérantes des membres inférieurs
+Sténose de la carotide interne extracrânienne
+Varices des membres inférieurs
+Anévrysmes de l’aorte abdominale sous-rénale
+Insuffisance entéromésentérique chronique
+Kystes hydatiques du poumon
+Cancers bronchiques
+Dyspnée laryngée
+Obstruction nasale
+Cancer du cavum
+Cataracte
+Glaucome primitif à angle fermé
+Trachome
+#Urgences médicales
+Pneumothorax spontané
+Asthme aigu grave
+Détresse respiratoire aiguë du nouveau-né, de l’enfant et de l’adulte
+Arrêt cardio-circulatoire de l’adulte
+Douleur thoracique aiguë
+Syndrome coronarien aigu
+Embolie pulmonaire
+Paludisme grave
+Méningites purulentes
+État de choc
+Œdème aigu du poumon cardiogénique
+Complications graves d’une transfusion sanguine
+Accidents des anticoagulants
+Accident vasculaire cérébral à la phase aiguë
+Coma non traumatique
+Acidocétose diabétique
+Coma hyperosmolaire
+État d’agitation aigu
+Céphalée aiguë
+Perte de connaissance brève
+État de mal épileptique chez l’adulte
+Paralysie extensive
+Intoxication aiguë médicamenteuse
+Intoxication aiguë par le monoxyde de carbone
+Intoxication aiguë par la paraphénylène diamine (Takaout Roumia)
+Intoxication aiguë par les pesticides organophosphorés
+Piqûre de scorpion et morsure de vipère
+Grosse jambe rouge aiguë
+Insuffisance rénale aiguë
+Hypoglycémie
+Insuffisance surrénale aiguë
+Colique hépatique
+Colique néphrétique
+Œil rouge et/ou douloureux
+Éclampsie
+Hyperthermie majeure chez l’enfant et l’adulte
+Réanimation du nouveau-né en salle d’accouchement
+Convulsion du nourrisson
+Déshydratation aiguë du nourrisson
+Troubles du rythme ou de conduction cardiaque
+Hémoptysie
+Hémorragie méningée
+Tétanos de l’adulte
+Noyade
+État délirant aigu
+Crise d’angoisse
+Syndrome de néphropathie vasculaire
+#Urgences chirurgicales
+Brûlures caustiques œsogastroduodénales
+Hémorragie digestive haute
+Hémorragie digestive basse
+Abdomen aigu non traumatique
+Ulcère duodénal perforé
+Angiocholites aiguës
+Appendicites aiguës et leurs complications
+Pancréatite aiguë
+Occlusion du grêle
+Occlusion du côlon
+Invagination intestinale aiguë
+Volvulus du sigmoïde
+Hernies étranglées
+Contusion de l’abdomen
+Plaie pénétrante de l’abdomen
+Hémopéritoine post-traumatique
+Hématome rétropéritonéal post-traumatique
+Traumatismes fermés du thorax
+Traumatismes ouverts du thorax
+Plaies du cœur
+Traumatisme crânien
+Hématome extradural
+Syndrome d’hypertension intracrânienne
+Abcès encéphalique
+Ischémie aiguë des membres inférieurs
+Traumatismes vasculaires des membres
+Grosse bourse aiguë
+Rétention aiguë d’urine
+Les anuries mécaniques
+La cellulite périnéo-scrotale
+Traumatisme de l’urètre
+Fracture de la rotule
+Fractures ouvertes de jambe
+Luxation du coude
+Fracture de l’extrémité inférieure du radius
+Fracture de l’extrémité inférieure de l’humérus
+Entorses graves de la cheville et du genou
+Ruptures du tendon d’Achille
+Écrasements des membres
+Panaris et phlegmon de la main
+Brûlures
+Grossesse extra-utérine
+Hémorragie de la délivrance
+Placenta praevia
+Hématome rétroplacentaire`;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+const DEF={mode:'deck',favor:false,cooldown:0,n:4,target:0,anim:true,theme:'dark'};
+let S,hist=[],view='tirage',editing=null,q='',sort='count',showArch=false,spinning=false,banner='',msg='',exp='',impData=null,impMsg='',C={},L={};
+
+function seed(){let sec='';const subs=[];RAW.split('\n').forEach(l=>{l=l.trim();if(!l)return;if(l[0]==='#')sec=l.slice(1);else subs.push({id:uid(),name:l,sec,base:0,arch:false});});return{subjects:subs,log:[],pending:[],deck:subs.map(s=>s.id),settings:{...DEF},backup:null};}
+function valid(d){return !!d&&Array.isArray(d.subjects)&&Array.isArray(d.log)&&d.subjects.every(s=>s&&typeof s.id==='string'&&typeof s.name==='string'&&Number.isFinite(s.base))&&d.log.every(e=>e&&typeof e.sid==='string'&&Number.isFinite(e.ts));}
+function norm(d){d.subjects.forEach(s=>{s.arch=!!s.arch;s.sec=s.sec||'';});d.log.forEach(e=>{e.id=e.id||uid();});d.pending=(d.pending||[]).filter(id=>d.subjects.some(s=>s.id===id));d.deck=Array.isArray(d.deck)?d.deck:d.subjects.map(s=>s.id);d.settings={...DEF,...(d.settings||{})};d.backup=d.backup||null;return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(valid(d))return norm(d);}}catch(e){}return seed();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){banner='Enregistrement impossible dans ce navigateur : les données seront perdues à la fermeture. Utilisez la sauvegarde dans Réglages.';}}
+function derive(){C={};L={};S.log.forEach(e=>{C[e.sid]=(C[e.sid]||0)+1;if(!L[e.sid]||e.ts>L[e.sid])L[e.sid]=e.ts;});}
+const cnt=s=>Math.max(0,s.base+(C[s.id]||0));
+const byId=id=>S.subjects.find(s=>s.id===id);
+const fois=n=>n===0?'Jamais étudiée':n===1?'Étudiée 1 fois':`Étudiée ${n} fois`;
+
+function mut(fn,toast){hist.push(JSON.stringify(S));if(hist.length>50)hist.shift();fn();save();render();if(toast)showToast(toast);}
+function undo(){if(!hist.length)return;S=JSON.parse(hist.pop());save();render();showToast('Action annulée.',false);}
+let tt;function showToast(m,u=true){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>`+(u&&hist.length?'<button data-act="undo">Annuler</button>':'');t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{t.hidden=true;},6000);}
+
+function elig(ex){const cd=S.settings.cooldown*864e5,now=Date.now();return S.subjects.filter(s=>!s.arch&&!ex.has(s.id)&&!(cd&&L[s.id]&&L[s.id]>now-cd));}
+function weight(s){const c=cnt(s),t=S.settings.target;return t>0?Math.max(t-c,0)+0.15:1/(1+c);}
+function draw(pool,k){const out=[];pool=pool.slice();while(out.length<k&&pool.length){const ws=S.settings.favor?pool.map(weight):pool.map(()=>1);let r=Math.random()*ws.reduce((a,b)=>a+b,0),i=0;for(;i<pool.length-1;i++){r-=ws[i];if(r<=0)break;}out.push(pool.splice(i,1)[0]);}return out;}
+
+function doSpin(){
+  S.pending.forEach(id=>{if(!S.deck.includes(id))S.deck.push(id);});
+  const el=elig(new Set()),st=S.settings,k=Math.min(st.n,el.length);let picks;
+  if(st.mode==='deck'){
+    const d=new Set(S.deck),p=el.filter(s=>d.has(s.id));
+    picks=draw(p,k);let wrapped=false;
+    if(picks.length<k){wrapped=true;const got=new Set(picks.map(s=>s.id));picks=picks.concat(draw(el.filter(s=>!got.has(s.id)),k-picks.length));}
+    const ids=new Set(picks.map(s=>s.id));
+    S.deck=(wrapped?el.map(s=>s.id):S.deck).filter(i=>!ids.has(i));
+  }else picks=draw(el,k);
+  S.pending=picks.map(s=>s.id);
+}
+function spin(){
+  if(spinning)return;derive();
+  if(!elig(new Set()).length){showToast(S.subjects.some(s=>!s.arch)?'Toutes les matières sont en pause. Réduisez le délai dans Réglages.':'La liste est vide. Ajoutez des matières dans l’onglet Matières.',false);return;}
+  const go=()=>{spinning=false;mut(doSpin);};
+  if(S.settings.anim&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    spinning=true;render();const names=S.subjects.filter(s=>!s.arch);let i=0;
+    const iv=setInterval(()=>{document.querySelectorAll('.card.ph .t').forEach(e=>{e.textContent=names[Math.floor(Math.random()*names.length)].name;});if(++i>9){clearInterval(iv);go();}},80);
+  }else go();
+}
+function done(id){mut(()=>{S.log.push({id:uid(),sid:id,ts:Date.now()});S.pending=S.pending.filter(x=>x!==id);},'Marqué comme étudié.');}
+function reroll(id){
+  derive();const el=elig(new Set(S.pending));
+  if(!el.length){showToast('Aucune autre matière disponible.',false);return;}
+  mut(()=>{const d=new Set(S.deck),p=el.filter(s=>d.has(s.id)),n=draw(p.length&&S.settings.mode==='deck'?p:el,1)[0],i=S.pending.indexOf(id);S.pending[i]=n.id;if(!S.deck.includes(id))S.deck.push(id);S.deck=S.deck.filter(x=>x!==n.id);});
+}
+function addSubs(){
+  const t=$('#bulk').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!t.length){msg='Saisissez au moins une matière.';render();return;}
+  const ex=new Set(S.subjects.map(s=>s.name.toLowerCase())),add=[];let dup=0;
+  t.forEach(n=>{const k=n.toLowerCase();if(ex.has(k))dup++;else{ex.add(k);add.push({id:uid(),name:n,sec:'',base:0,arch:false});}});
+  if(!add.length){msg=`Aucune ajoutée : ${dup} doublon(s).`;render();return;}
+  msg=`${add.length} ajoutée(s)`+(dup?`, ${dup} doublon(s) ignoré(s).`:'.');
+  mut(()=>{S.subjects.push(...add);S.deck.push(...add.map(s=>s.id));});
+}
+function rensave(id){const v=($('#ren').value||'').trim();editing=null;if(!v){render();return;}
+  if(S.subjects.some(s=>s.id!==id&&s.name.toLowerCase()===v.toLowerCase())){msg='Ce nom existe déjà.';render();return;}
+  mut(()=>{byId(id).name=v;});}
+function gen(){S.backup=Date.now();save();exp=JSON.stringify({v:1,subjects:S.subjects,log:S.log,settings:S.settings});render();try{navigator.clipboard.writeText(exp).then(()=>showToast('Sauvegarde copiée.',false),()=>{});}catch(e){}}
+function chk(){const t=$('#imp').value.trim();impData=null;
+  if(!t)impMsg='Collez d’abord une sauvegarde.';
+  else{try{const d=JSON.parse(t);if(!valid(d))throw 0;impData=d;impMsg=`Sauvegarde valide : ${d.subjects.length} matières, ${d.log.length} études enregistrées.`;}catch(e){impMsg='Sauvegarde invalide : rien n’a été modifié.';}}
+  render();}
+function impok(){const b=S.backup;mut(()=>{S=norm({subjects:impData.subjects,log:impData.log,settings:impData.settings,pending:[],deck:impData.subjects.map(s=>s.id)});S.backup=b;impData=null;impMsg='Données restaurées.';},'Données restaurées.');}
+
+const row=s=>`<div class="r${s.arch?' ar':''}"><div class="rn">${editing===s.id?`<input id="ren" value="${esc(s.name)}" data-id="${s.id}" aria-label="Nom">`:esc(s.name)}</div><div class="ctl"><button data-act="minus" data-id="${s.id}" aria-label="Moins">−</button><input class="cn" type="number" min="0" inputmode="numeric" value="${cnt(s)}" data-id="${s.id}" aria-label="Nombre d’études"><button data-act="plus" data-id="${s.id}" aria-label="Plus">+</button><span class="sp"></span>${editing===s.id?`<button data-act="rensave" data-id="${s.id}">Enregistrer</button>`:`<button data-act="ren" data-id="${s.id}">Renommer</button>`}<button data-act="arch" data-id="${s.id}">${s.arch?'Restaurer':'Archiver'}</button></div></div>`;
+function renderList(){
+  const ql=q.trim().toLowerCase();
+  let a=S.subjects.filter(s=>(showArch||!s.arch)&&(!ql||s.name.toLowerCase().includes(ql)));
+  if(sort==='count')a=a.map((s,i)=>[s,i]).sort((x,y)=>cnt(x[0])-cnt(y[0])||x[1]-y[1]).map(x=>x[0]);
+  $('#list').innerHTML=a.length?a.map(row).join(''):'<p class="empty">Aucune matière.</p>';
+}
+function vTirage(){
+  const n=S.settings.n;
+  if(spinning)return Array.from({length:Math.max(1,Math.min(n,elig(new Set()).length))},()=>'<article class="card ph"><div class="t">…</div></article>').join('');
+  const ps=S.pending.map(byId).filter(Boolean);
+  if(!ps.length)return `<p class="empty">Aucune matière tirée. Appuyez sur « Tirer au sort » pour en obtenir ${n}.</p>`;
+  return ps.map(s=>`<article class="card"><div class="t">${esc(s.name)}</div>${s.sec?`<div class="m">${esc(s.sec)}</div>`:''}<div class="m">${fois(cnt(s))}</div><div class="row"><button class="pri" data-act="done" data-id="${s.id}">Étudié ✓</button><button data-act="re" data-id="${s.id}">Remplacer</button></div></article>`).join('');
+}
+function vMat(){
+  return `<section><label class="lb" for="bulk">Ajouter des matières (une par ligne)</label><textarea id="bulk" rows="3"></textarea><button class="pri" data-act="cadd">Ajouter</button><p class="mu">${esc(msg)}</p></section>
+<div class="tools"><input id="q" type="search" placeholder="Rechercher" value="${esc(q)}" aria-label="Rechercher"><select id="sort" aria-label="Tri"><option value="count"${sort==='count'?' selected':''}>Moins étudiées d’abord</option><option value="prog"${sort==='prog'?' selected':''}>Ordre du programme</option></select></div>
+<label class="chk"><input type="checkbox" id="arch"${showArch?' checked':''}> Afficher les matières archivées</label><div id="list"></div>`;
+}
+function vHist(){
+  const a=S.log.slice().sort((x,y)=>y.ts-x.ts);
+  if(!a.length)return '<p class="empty">Aucune étude enregistrée pour le moment.</p>';
+  return a.map(e=>{const s=byId(e.sid),d=new Date(e.ts);return `<div class="h"><div>${esc(s?s.name:'Matière supprimée')}<small>${d.toLocaleDateString('fr-FR')} à ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</small></div><button data-act="dlog" data-id="${e.id}">Supprimer</button></div>`;}).join('');
+}
+function vSet(){
+  const s=S.settings,last=S.backup?'Dernière sauvegarde : '+new Date(S.backup).toLocaleDateString('fr-FR')+'.':'Aucune sauvegarde générée pour le moment.';
+  return `<section class="set"><label>Mode de tirage<select data-set="mode"><option value="deck"${s.mode==='deck'?' selected':''}>Paquet mélangé (pas de répétition avant la fin du tour)</option><option value="random"${s.mode==='random'?' selected':''}>Aléatoire pur</option></select></label>
+<label class="chk"><input type="checkbox" data-set="favor"${s.favor?' checked':''}> Favoriser les moins étudiées</label>
+<label>Matières par tirage<input type="number" min="1" max="10" data-set="n" value="${s.n}"></label>
+<label>Pause après une étude, en jours (0 = désactivée)<input type="number" min="0" data-set="cooldown" value="${s.cooldown}"></label>
+<label>Objectif d’études par matière (0 = aucun)<input type="number" min="0" data-set="target" value="${s.target}"></label>
+<label class="chk"><input type="checkbox" data-set="anim"${s.anim?' checked':''}> Animation du tirage</label>
+<label>Thème<select data-set="theme"><option value="dark"${s.theme==='dark'?' selected':''}>Sombre</option><option value="light"${s.theme==='light'?' selected':''}>Clair</option></select></label></section>
+<section><h2>Sauvegarde</h2><p class="mu">Les données sont stockées dans ce navigateur. Copiez la sauvegarde pour la conserver ou la transférer vers un autre appareil.</p>
+<button data-act="gen">Générer la sauvegarde</button><textarea id="exp" readonly rows="3" aria-label="Sauvegarde">${esc(exp)}</textarea><p class="mu">${last}</p>
+<label class="lb" for="imp">Restaurer depuis une sauvegarde</label><textarea id="imp" rows="3" placeholder="Collez ici le texte de la sauvegarde"></textarea><button data-act="imp">Vérifier</button><p class="mu">${esc(impMsg)}</p>${impData?'<div class="row"><button class="pri" data-act="impok">Remplacer mes données</button><button data-act="impno">Annuler</button></div>':''}</section>`;
+}
+function render(){
+  derive();document.documentElement.dataset.theme=S.settings.theme;
+  const tot=S.subjects.filter(s=>!s.arch),dn=tot.filter(s=>cnt(s)>0).length;
+  $('#cov').textContent=`${dn} sur ${tot.length} matières étudiées au moins une fois`;
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===view)));
+  $('#bar').hidden=view!=='tirage';$('#spin').disabled=spinning;
+  $('#banner').hidden=!banner;$('#banner').textContent=banner;
+  $('#app').innerHTML=({tirage:vTirage,matieres:vMat,historique:vHist,reglages:vSet})[view]();
+  if(view==='matieres')renderList();
+  if(editing){const i=$('#ren');if(i){i.focus();i.select();}}
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const id=b.dataset.id,s=id&&byId(id);
+  const A={
+    tab:()=>{view=b.dataset.v;editing=null;msg='';render();window.scrollTo(0,0);},
+    spin,undo,done:()=>done(id),re:()=>reroll(id),cadd:addSubs,gen,imp:chk,
+    minus:()=>{if(s&&cnt(s)>0)mut(()=>{s.base-=1;});},
+    plus:()=>{if(s)mut(()=>{s.base+=1;});},
+    arch:()=>{if(s)mut(()=>{s.arch=!s.arch;S.pending=S.pending.filter(x=>x!==id);if(!s.arch&&!S.deck.includes(id))S.deck.push(id);});},
+    ren:()=>{editing=id;render();},
+    rensave:()=>rensave(id),
+    dlog:()=>mut(()=>{S.log=S.log.filter(x=>x.id!==id);},'Entrée supprimée.'),
+    impok,impno:()=>{impData=null;impMsg='';render();}
+  };
+  if(A[b.dataset.act])A[b.dataset.act]();
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.set){const k=t.dataset.set;let v;
+    if(t.type==='checkbox')v=t.checked;
+    else if(t.type==='number')v=Math.max(+t.min||0,Math.min(+t.max||999,Math.floor(+t.value)||0));
+    else v=t.value;
+    S.settings[k]=v;save();render();return;}
+  if(t.classList.contains('cn')){const v=Math.floor(+t.value),s=byId(t.dataset.id);
+    if(!s||!(v>=0)){render();return;}
+    mut(()=>{s.base=v-(C[s.id]||0);});return;}
+  if(t.id==='sort'){sort=t.value;render();}
+  if(t.id==='arch'){showArch=t.checked;render();}
+});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;renderList();}});
+document.addEventListener('keydown',e=>{
+  if(e.target.id==='ren'){if(e.key==='Enter')rensave(e.target.dataset.id);if(e.key==='Escape'){editing=null;render();}}
+});
+S=load();save();render();
+})();
+</script>
+</body>
+</html>
